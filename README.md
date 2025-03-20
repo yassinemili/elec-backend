@@ -25,3 +25,16 @@ Hackathon P0 is a full-stack application designed for managing a coding competit
    ```bash
    git clone https://github.com/yassinemili/P0.git
    cd P0
+2. Install Dependencies:
+   ```bash
+   npm install
+3. Set Up Environment Variables:
+Create a .env file in the root directory.
+Add the following (replace with your actual values):
+   ```bash
+   MONGO_URI=mongodb://localhost:27017/hackathon_p0
+   PORT=6000
+
+Run the App:
+npm run dev
+The server will start on http://localhost:6000 (or your specified PORT).

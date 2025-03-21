@@ -1,4 +1,5 @@
 const Competition = require("../models/competitionModel");
+const { updateCompetitionRankings } = require("../utils/rankingUtils");
 
 const createCompetition = async (req, res) => {
     try {
@@ -67,27 +68,29 @@ const deleteCompetition = async (req, res) => {
     }
 };
 
-
-
-
-
 const getCompetitionRankings = async (req, res) => {
     try {
         const { competitionId } = req.params;
 
-        const competition = await Competition.findById(competitionId)
-            .populate({
-                path: "rankings.teamId",
-                select: "name"
-            });
+        if (!competitionId || !mongoose.isValidObjectId(competitionId)) {
+            return res.status(400).json({ message: "Invalid Competition ID" });
+        }
+
+        const updatesRank = await updateCompetitionRankings(competitionId);
+        if (!updatesRank) {
+            return res.status(500).json({ message: "Error updating rankings" });
+        }
+
+
+        const competition = await Competition.findById(competitionId).select("name rankings");
 
         if (!competition) {
             return res.status(404).json({ message: "Competition not found" });
         }
 
-        res.json(competition.rankings);
+        res.json({ rankings: competition.rankings });
     } catch (error) {
-        console.error(error);
+        console.error("Error fetching rankings:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
@@ -99,4 +102,5 @@ module.exports = {
     getCompetitionById,
     updateCompetition,
     deleteCompetition,
+    getCompetitionRankings,
 };

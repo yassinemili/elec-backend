@@ -1,5 +1,5 @@
-const User = reauire("../models/userModel.js");
-const Team = reauire("../models/teamModel.js");
+const User = require("../models/userModel.js");
+const Team = require("../models/teamModel.js");
 const bcrypt = require("bcrypt");
 const { generateAccessToken } = require("../utils/tokenUtils");
 

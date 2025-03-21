@@ -6,7 +6,6 @@ const {
     getCompetitionById,
     updateCompetition,
     deleteCompetition,
-    getCompetitionRankings
 } = require("../controllers/competitionController");
 
 router.route("/")
@@ -20,8 +19,8 @@ router.route("/:id")
     .put(updateCompetition)
     .delete(deleteCompetition);
 
-router.route("/rankings/:id")
-    .get(getCompetitionRankings);
+/* router.route("/rankings/:id")
+    .get(getCompetitionRankings); */
 
 
 

@@ -17,6 +17,7 @@ const submissionRoutes = require("./routes/submissionRoutes");
 const scoreRoutes = require("./routes/scoreRoutes");
 const notificationRoutes = require("./routes/notificationsRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const setupSocket = require("./config/socket");
 
@@ -42,6 +43,7 @@ app.use("/api/submissions", submissionRoutes);
 app.use("/api/scores", scoreRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/announcements", announcementRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 connectDB();

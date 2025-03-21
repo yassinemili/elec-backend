@@ -15,7 +15,8 @@ const userSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: true
+            required: true,
+            unique: true
         },
         passwordHash: {
             type: String,
@@ -23,7 +24,7 @@ const userSchema = new mongoose.Schema(
         },
         role: {
             type: String,
-            enum: ["admin", "judge", "participant"],
+            enum: ["admin", "participant"],
             default: "participant"
         },
         teamId: {

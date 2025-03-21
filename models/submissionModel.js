@@ -1,17 +1,5 @@
 const mongoose = require('mongoose');
 
-/* {
-    "_id": ObjectId,
-    "challengeId": ObjectId,
-    "teamId": ObjectId,
-    "submittedAt": ISODate(),
-    "status": "pending", // ["pending", "reviewed"]
-    "submissionFile": "https://example.com/file.pdf",
-    "scores": [
-      { "judgeId": ObjectId, "score": 80, "comments": "Well done!" }
-    ]
-  } */
-
 const submissionSchema = new mongoose.Schema(
     {
         challengeId: {

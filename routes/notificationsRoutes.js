@@ -16,10 +16,20 @@ router.post("/send", (req, res) => {
     return res.status(500).json({ error: "Socket.io is not initialized" });
   }
 
-  io.emit("notification", message);
-  console.log("Notification sent:", message);
+  const timestamp = new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }); // HH:MM AM/PM format
 
-  res.json({ success: true, message: "Notification sent to all users" });
+  io.emit("notification", { message, timestamp });
+  console.log("Notification sent:", { message, timestamp });
+
+  res.json({
+    success: true,
+    message: "Notification sent to all users",
+    timestamp,
+  });
 });
 
 module.exports = router;

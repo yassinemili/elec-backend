@@ -35,6 +35,6 @@ app.use("/api/scores", scoreRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
-connectDB();
+// connectDB();
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));

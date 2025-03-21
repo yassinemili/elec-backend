@@ -96,6 +96,27 @@ const updateCompetitionRankings = async (competitionId) => {
 };
 
 
+const getCompetitionRankings = async (req, res) => {
+    try {
+        const { competitionId } = req.params;
+
+        const competition = await Competition.findById(competitionId)
+            .populate({
+                path: "rankings.teamId",
+                select: "name"
+            });
+
+        if (!competition) {
+            return res.status(404).json({ message: "Competition not found" });
+        }
+
+        res.json(competition.rankings);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
 
 module.exports = {
     createCompetition,

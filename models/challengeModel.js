@@ -31,7 +31,16 @@ const challengeSchema = new mongoose.Schema(
                     required: true
                 }
             }
-        ]
+        ],
+        isSolved: {
+            type: Boolean,
+            default: false
+        },
+        category: {
+            type: String,
+            enum: ["AI", "Graphic Design", "Problem Solving", "Cyber Security"],
+            required: true
+        }
     },
     { timestamps: true }
 );

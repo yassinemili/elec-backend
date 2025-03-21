@@ -152,6 +152,39 @@ const getTeamSubmissions = async (req, res) => {
 };
 
 
+const updateTeamScore = async (req, res) => {
+    try {
+        const { teamId, competitionId, challengeId, score } = req.body;
+
+        const team = await Team.findById(teamId);
+        if (!team) return res.status(404).json({ message: "Team not found" });
+
+        // Find the competition entry for this team
+        let competitionEntry = team.competitions.find(comp => comp.competitionId.toString() === competitionId);
+        if (!competitionEntry) {
+            team.competitions.push({ competitionId, scores: [{ challengeId, score }] });
+        } else {
+            let challengeEntry = competitionEntry.scores.find(ch => ch.challengeId.toString() === challengeId);
+            if (challengeEntry) {
+                challengeEntry.score = score;
+            } else {
+                competitionEntry.scores.push({ challengeId, score });
+            }
+        }
+
+        await team.save();
+
+        // Update competition rankings
+        await updateCompetitionRankings(competitionId);
+
+        res.status(200).json({ message: "Score updated successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+
 
 module.exports = {
     createTeam,

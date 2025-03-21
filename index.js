@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const http = require("http");
+const cookieParser = require('cookie-parser');
 
 const connectDB = require("./config/db");
 const errorHandler = require("./middlewares/errorMiddleware");
@@ -24,6 +25,7 @@ const server = http.createServer(app);
 app.use(cors("*"));
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(cookieParser());
 
 // Error middleware
 app.use(errorHandler);

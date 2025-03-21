@@ -68,32 +68,7 @@ const deleteCompetition = async (req, res) => {
 };
 
 
-const updateCompetitionRankings = async (competitionId) => {
-    try {
-        const competition = await Competition.findById(competitionId).populate("teams");
 
-        if (!competition) {
-            throw new Error("Competition not found");
-        }
-
-        let rankings = [];
-
-        for (let team of competition.teams) {
-            const totalScore = team.competitions
-                .find(comp => comp.competitionId.toString() === competitionId.toString())
-                ?.scores.reduce((acc, scoreObj) => acc + scoreObj.score, 0) || 0;
-
-            rankings.push({ teamId: team._id, totalScore });
-        }
-
-        rankings.sort((a, b) => b.totalScore - a.totalScore);
-
-        competition.rankings = rankings;
-        await competition.save();
-    } catch (error) {
-        console.error("Error updating rankings:", error.message);
-    }
-};
 
 
 const getCompetitionRankings = async (req, res) => {
@@ -124,5 +99,4 @@ module.exports = {
     getCompetitionById,
     updateCompetition,
     deleteCompetition,
-    updateCompetitionRankings,
 };

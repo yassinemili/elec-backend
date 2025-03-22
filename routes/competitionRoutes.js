@@ -1,9 +1,27 @@
 const express = require("express");
 const router = express.Router();
-const { getAllCompetitions, createCompetition, getCompetitionById } = require("../controllers/competitionController");
+const {
+    createCompetition,
+    getAllCompetitions,
+    getCompetitionById,
+    updateCompetition,
+    deleteCompetition,
+} = require("../controllers/competitionController");
 
-router.get("/", getAllCompetitions);
-router.post("/", createCompetition);
-router.get("/:id", getCompetitionById);
+router.route("/")
+    .get(getAllCompetitions)
+    .post(createCompetition);
+
+
+
+router.route("/:id")
+    .get(getCompetitionById)
+    .put(updateCompetition)
+    .delete(deleteCompetition);
+
+/* router.route("/rankings/:id")
+    .get(getCompetitionRankings); */
+
+
 
 module.exports = router;

@@ -1,29 +1,17 @@
 const mongoose = require('mongoose');
 
-/* {
-    "_id": ObjectId,
-    "name": "Alpha Squad",
-    "members": [
-      { "userId": ObjectId, "role": "leader" },
-      { "userId": ObjectId, "role": "member" }
-    ],
-    "competitions": [ObjectId], // Reference competitions team is part of
-    "createdAt": ISODate(),
-    "updatedAt": ISODate()
-  } */
-
 const teamSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: true
+            required: true,
+            unique: true
         },
         members: [
             {
                 userId: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "User",
-                    required: true
                 },
                 role: {
                     type: String,
@@ -34,13 +22,28 @@ const teamSchema = new mongoose.Schema(
         ],
         competitions: [
             {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Competition"
+                competitionId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Competition"
+                },
+                scores: [
+                    {
+                        challengeId: {
+                            type: mongoose.Schema.Types.ObjectId,
+                            ref: "Challenge"
+                        },
+                        score: {
+                            scores: [{
+                              type: mongoose.Schema.Types.ObjectId,
+                              ref: "Score"
+                            }]
+                          }
+                    }
+                ]
             }
         ]
     },
     { timestamps: true }
 );
 
-module.export = mongoose.model('Team', teamSchema)
-
+module.exports = mongoose.model('Team', teamSchema);

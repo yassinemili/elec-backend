@@ -1,14 +1,5 @@
 const mongoose = require('mongoose');
 
-/* {
-    "_id": ObjectId,
-    "submissionId": ObjectId,
-    "judgeId": ObjectId,ß
-    "score": 85,
-    "comments": "Great job!",
-    "createdAt": ISODate()
-  } */
-
 const scoreSchema = new mongoose.Schema(
     {
         submissionId: {

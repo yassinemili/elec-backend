@@ -1,19 +1,5 @@
 const mongoose = require('mongoose');
 
-/* 
-{
-    "_id": ObjectId,
-    "competitionId": ObjectId,
-    "title": "Build a To-Do App",
-    "description": "Create a full-stack to-do application.",
-    "points": 50,
-    "submissions": [
-      { "teamId": ObjectId, "submissionId": ObjectId }
-    ],
-    "createdAt": ISODate(),
-    "updatedAt": ISODate()
-  } */
-
 const challengeSchema = new mongoose.Schema(
     {
         competitionId: {
@@ -45,7 +31,16 @@ const challengeSchema = new mongoose.Schema(
                     required: true
                 }
             }
-        ]
+        ],
+        isSolved: {
+            type: Boolean,
+            default: false
+        },
+        category: {
+            type: String,
+            enum: ["AI", "Graphic Design", "Problem Solving", "Cyber Security"],
+            required: true
+        }
     },
     { timestamps: true }
 );

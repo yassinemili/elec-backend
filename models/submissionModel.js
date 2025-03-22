@@ -12,19 +12,15 @@ const submissionSchema = new mongoose.Schema(
       ref: "Team",
       required: true,
     },
-    submittedAt: {
-      type: Date,
-      required: true,
-    },
+    submittedAt: { type: Date, default: Date.now },
     status: {
       type: String,
       enum: ["pending", "reviewed"],
       default: "pending",
     },
-    submissionFile: {
-      type: String, // Stores the Google Drive URL for the submission file
-      required: true,
-    },
+    submissionFile: { type: String },
+    submissionText: { type: String },
+
     scores: [
       {
         type: mongoose.Schema.Types.ObjectId,

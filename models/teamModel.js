@@ -33,9 +33,11 @@ const teamSchema = new mongoose.Schema(
                             ref: "Challenge"
                         },
                         score: {
-                            type: Number,
-                            default: 0
-                        }
+                            scores: [{
+                              type: mongoose.Schema.Types.ObjectId,
+                              ref: "Score"
+                            }]
+                          }
                     }
                 ]
             }

@@ -112,16 +112,30 @@ const removeUserFromTeam = async (req, res) => {
 };
 
 // Retrieve a team's members
+// WELL 
 const getTeamMembers = async (req, res) => {
     try {
-        const team = await Team.findById(req.params.teamId).populate("members", "name");
+        const team = await Team.findById(req.params.teamId).populate({
+            path: "members._id",
+            model: "User",
+            select: "name"
+        });
         if (!team) return res.status(404).json({ message: "Team not found" });
-        res.json(team.users);
+
+        const members = team.members.map(member => {
+            const userName = member._id && member._id.name ? member._id.name : "Unknown";
+            return { name: userName, role: member.role };
+        });
+
+        res.json(members);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
+
+
 
 // Retrieve a team's submissions
 const getTeamSubmissions = async (req, res) => {
@@ -154,21 +168,18 @@ const getTeamSubmissions = async (req, res) => {
 
 const updateTeamScore = async (req, res) => {
     try {
-        const { teamId, competitionId, challengeId, score } = req.body;
+        const { teamId } = req.params;
+        const { competitionId, challengeId, score } = req.body;
 
         const team = await Team.findById(teamId);
         if (!team) return res.status(404).json({ message: "Team not found" });
 
         // Find the competition entry for this team
-        let competitionEntry = team.competitions.find(comp => comp.competitionId.toString() === competitionId);
-        if (!competitionEntry) {
-            team.competitions.push({ competitionId, scores: [{ challengeId, score }] });
-        } else {
+        let competitionEntry = team.competitions.find(comp => comp._id.toString() === competitionId);
+        if (competitionEntry) {
             let challengeEntry = competitionEntry.scores.find(ch => ch.challengeId.toString() === challengeId);
             if (challengeEntry) {
                 challengeEntry.score = score;
-            } else {
-                competitionEntry.scores.push({ challengeId, score });
             }
         }
 
@@ -195,4 +206,5 @@ module.exports = {
     removeUserFromTeam,
     getTeamMembers,
     getTeamSubmissions,
+    updateTeamScore,
 };

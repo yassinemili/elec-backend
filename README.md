@@ -34,6 +34,7 @@ Add the following (replace with your actual values):
    ```bash
    MONGO_URI=mongodb://localhost:27017/hackathon_p0
    PORT=6000
+   JWT_SECRET=ExampleTokenHere
 
 Run the App:
 npm run dev

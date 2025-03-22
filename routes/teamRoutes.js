@@ -9,6 +9,7 @@ const {
     removeUserFromTeam,
     getTeamMembers,
     getTeamSubmissions,
+    updateTeamScore,
 } = require("../controllers/teamController.js");
 
 router.route("/")
@@ -28,6 +29,9 @@ router.route("/:teamId/members")
 
 router.route("/:teamId/submissions")
     .get(getTeamSubmissions);
+
+router.route("/:teamId/score")
+    .patch(updateTeamScore);
 
 
 

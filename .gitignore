@@ -3,7 +3,7 @@
 
 # Environment Variables
 .env
-
+Dockerfile
 # Logs
 logs
 *.log

@@ -4,6 +4,7 @@ const Submission = require("../models/submissionModel");
 const Competition = require("../models/competitionModel");
 const Challenge = require("../models/challengeModel");
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 
 const createUser = async (req, res) => {
   try {
@@ -128,8 +129,14 @@ const getUserParticipatedChallenges = async (req, res) => {
 // Retrieve a user's participated teams
 const getUserParticipatedTeams = async (req, res) => {
   try {
-    const teams = await Team.find({ members: { $in: [req.params.id] } });
-    if (!teams) return res.status(404).json({ message: "User not found" });
+    const userId = new mongoose.Types.ObjectId(req.params.id); // Convert string to ObjectId
+
+    const teams = await Team.find({ members: { $in: [userId] } });
+
+    if (!teams || teams.length === 0) {
+      return res.status(404).json({ message: "User not found in any team" });
+    }
+
     res.json(teams);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

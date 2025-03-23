@@ -1,6 +1,7 @@
 const User = require("../models/userModel.js");
 const Team = require("../models/teamModel.js");
-const bcrypt = require('bcryptjs'); 
+const Competition = require("../models/competitionModel.js");
+const bcrypt = require('bcryptjs');
 const { generateAccessToken } = require("../utils/tokenUtils");
 
 const login = async (req, res) => {
@@ -13,6 +14,10 @@ const login = async (req, res) => {
 
     const team = await Team.findById(user.teamId);
     if (!team) return res.status(404).json({ message: "Team not found" });
+
+    const competitionId = team.competitions[0];
+    const competition = await Competition.findById(competitionId);
+    if (!competition) return res.status(404).json({ message: "Competition not found" });
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
 
@@ -34,6 +39,10 @@ const login = async (req, res) => {
       team: {
         teamId: team._id,
         teamName: team.name,
+      },
+      competition: {
+        competitionId: competition._id,
+        competitionName: competition.name,
       },
     });
   } catch (error) {

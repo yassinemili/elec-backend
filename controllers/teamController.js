@@ -4,9 +4,9 @@ const User = require("../models/userModel");
 
 const createTeam = async (req, res) => {
     try {
-        const { name, competitionId } = req.body;
+        const { name } = req.body;
 
-        if (!name || !competitionId) {
+        if (!name) {
             return res.status(400).json({ message: "Missing required field" });
         }
 

@@ -1,6 +1,6 @@
 const User = require("../models/userModel.js");
 const Team = require("../models/teamModel.js");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs'); 
 const { generateAccessToken } = require("../utils/tokenUtils");
 
 const login = async (req, res) => {

@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 
 const announcementSchema = new mongoose.Schema(
     {
-        competitionId: {
+        /* competitionId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Competition",
             required: true
-        },
+        }, */
         title: {
             type: String,
             required: true,

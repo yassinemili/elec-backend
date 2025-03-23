@@ -20,7 +20,7 @@ const teamSchema = new mongoose.Schema(
                 }
             }
         ],
-        competitions: [
+/*         competitions: [
             {
                 competitionId: {
                     type: mongoose.Schema.Types.ObjectId,
@@ -41,7 +41,7 @@ const teamSchema = new mongoose.Schema(
                     }
                 ]
             }
-        ]
+        ] */
     },
     { timestamps: true }
 );

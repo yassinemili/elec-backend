@@ -1,4 +1,4 @@
-const Competition = require("../models/competitionModel");
+/* const Competition = require("../models/competitionModel");
 const { updateCompetitionRankings } = require("../utils/rankingUtils");
 
 const createCompetition = async (req, res) => {
@@ -103,4 +103,4 @@ module.exports = {
     updateCompetition,
     deleteCompetition,
     getCompetitionRankings,
-};
+}; */

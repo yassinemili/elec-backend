@@ -1,4 +1,4 @@
-const express = require("express");
+/* const express = require("express");
 const router = express.Router();
 const {
     createCompetition,
@@ -19,9 +19,9 @@ router.route("/:id")
     .put(updateCompetition)
     .delete(deleteCompetition);
 
-/* router.route("/rankings/:id")
-    .get(getCompetitionRankings); */
+router.route("/rankings/:id")
+    .get(getCompetitionRankings); 
 
 
 
-module.exports = router;
+module.exports = router; */

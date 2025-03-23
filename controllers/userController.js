@@ -8,8 +8,9 @@ const mongoose = require("mongoose");
 
 const createUser = async (req, res) => {
   try {
-    const { name, password, role, teamId } = req.body;
-    if (!name || !password || !role || !teamId) {
+    const { name, password, role } = req.body;
+
+    if (!name || !password || !role) {
       return res.status(400).json({ message: "Missing required fields" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -17,7 +18,7 @@ const createUser = async (req, res) => {
       name: name,
       passwordHash: hashedPassword,
       role: role,
-      teamId: teamId,
+      /* teamId: teamId, */
     });
     await user.save();
 

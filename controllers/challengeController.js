@@ -55,10 +55,7 @@ const createChallenge = async (req, res) => {
 
 const getChallengeById = async (req, res) => {
   try {
-    const challenge = await Challenge.findById(req.params.id).populate(
-      "submissions.teamId",
-      "name"
-    );
+    const challenge = await Challenge.findById(req.params.id);
     if (!challenge)
       return res.status(404).json({ message: "Challenge not found" });
     res.json(challenge);

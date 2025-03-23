@@ -15,6 +15,10 @@ const announcementSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    attachmentFile: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

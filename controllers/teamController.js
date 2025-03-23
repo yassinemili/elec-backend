@@ -1,5 +1,5 @@
 const Team = require("../models/teamModel.js");
-const Competition = require("../models/competitionModel");
+/* const Competition = require("../models/competitionModel"); */
 const User = require("../models/userModel");
 
 const createTeam = async (req, res) => {
@@ -17,18 +17,18 @@ const createTeam = async (req, res) => {
 
         const team = new Team({ name });
 
-        const competition = await Competition.findById(competitionId);
+        /* const competition = await Competition.findById(competitionId);
         if (!competition) {
             return res.status(404).json({ message: "Competition not found" });
-        }
+        } */
 
-        // Associate team and competition
+        /* // Associate team and competition
         team.competitions.push(competition._id);
-        competition.teams.push(team._id);
+        competition.teams.push(team._id); */
 
         // Save both the team and the updated competition
         await team.save();
-        await competition.save();
+        /* await competition.save(); */
 
         // Respond with the created team
         res.status(201).json(team);
@@ -53,7 +53,7 @@ const getAllTeams = async (req, res) => {
 // Retrieve a team by ID
 const getTeamById = async (req, res) => {
     try {
-        const team = await Team.findById(req.params.id).populate("competitions");
+        const team = await Team.findById(req.params.id)/* .populate("competitions") */;
         if (!team) return res.status(404).json({ message: "Team not found" });
         res.json(team);
     } catch (error) {
@@ -167,32 +167,7 @@ const getTeamSubmissions = async (req, res) => {
 
 
 const updateTeamScore = async (req, res) => {
-    try {
-        const { teamId } = req.params;
-        const { competitionId, challengeId, score } = req.body;
 
-        const team = await Team.findById(teamId);
-        if (!team) return res.status(404).json({ message: "Team not found" });
-
-        // Find the competition entry for this team
-        let competitionEntry = team.competitions.find(comp => comp._id.toString() === competitionId);
-        if (competitionEntry) {
-            let challengeEntry = competitionEntry.scores.find(ch => ch.challengeId.toString() === challengeId);
-            if (challengeEntry) {
-                challengeEntry.score = score;
-            }
-        }
-
-        await team.save();
-
-        // Update competition rankings
-        await updateCompetitionRankings(competitionId);
-
-        res.status(200).json({ message: "Score updated successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
 };
 
 

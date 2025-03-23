@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+/* const mongoose = require('mongoose');
 
 const competitionSchema = new mongoose.Schema(
     {
@@ -34,3 +34,4 @@ const competitionSchema = new mongoose.Schema(
 module.exports = mongoose.model("Competition", competitionSchema);
 
 
+ */

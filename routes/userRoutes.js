@@ -7,7 +7,7 @@ const {
     updateUserRole,
     deleteUser,
     getUserSubmissions,
-    getUserParticipatedCompetitions,
+/*     getUserParticipatedCompetitions, */
     getUserParticipatedChallenges,
     getUserParticipatedTeams,
 } = require("../controllers/userController");
@@ -25,8 +25,8 @@ router.route("/:id")
 router.route("/:id/submissions")
     .get(getUserSubmissions);
 
-router.route("/:id/competitions")
-    .get(getUserParticipatedCompetitions);
+/* router.route("/:id/competitions")
+    .get(getUserParticipatedCompetitions); */
 
 router.route("/:id/challenges")
     .get(getUserParticipatedChallenges);

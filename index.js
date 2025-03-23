@@ -11,7 +11,7 @@ require("dotenv").config();
 
 const userRoutes = require("./routes/userRoutes");
 const teamRoutes = require("./routes/teamRoutes");
-const competitionRoutes = require("./routes/competitionRoutes");
+/* const competitionRoutes = require("./routes/competitionRoutes"); */
 const challengeRoutes = require("./routes/challengeRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
 const scoreRoutes = require("./routes/scoreRoutes");
@@ -37,7 +37,7 @@ setupSocket(server);
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/teams", teamRoutes);
-app.use("/api/competitions", competitionRoutes);
+/* app.use("/api/competitions", competitionRoutes); */
 app.use("/api/challenges", challengeRoutes);
 app.use("/api/submissions", submissionRoutes);
 app.use("/api/scores", scoreRoutes);

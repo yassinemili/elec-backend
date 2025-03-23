@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const Team = require("../models/teamModel");
 const Submission = require("../models/submissionModel");
-const Competition = require("../models/competitionModel");
+/* const Competition = require("../models/competitionModel"); */
 const Challenge = require("../models/challengeModel");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
@@ -100,7 +100,7 @@ const getUserSubmissions = async (req, res) => {
 };
 
 // Retrieve a user's participated competitions
-const getUserParticipatedCompetitions = async (req, res) => {
+/* const getUserParticipatedCompetitions = async (req, res) => {
   try {
     const competitions = await Competition.find({
       teams: { $in: [req.params.id] },
@@ -111,7 +111,7 @@ const getUserParticipatedCompetitions = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
-};
+}; */
 
 // Retrieve a user's participated challenges
 const getUserParticipatedChallenges = async (req, res) => {
@@ -150,7 +150,6 @@ module.exports = {
   updateUserRole,
   deleteUser,
   getUserSubmissions,
-  getUserParticipatedCompetitions,
   getUserParticipatedChallenges,
   getUserParticipatedTeams,
 };

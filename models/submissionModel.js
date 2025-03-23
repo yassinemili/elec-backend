@@ -12,7 +12,6 @@ const submissionSchema = new mongoose.Schema(
       ref: "Team",
       required: true,
     },
-    submittedAt: { type: Date, default: Date.now },
     status: {
       type: String,
       enum: ["pending", "reviewed"],

@@ -14,13 +14,12 @@ const challengeSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    attechment: {
+      type: String,
+    },
     hints: {
       type: [String],
       default: [],
-    },
-    isSolved: {
-      type: Boolean,
-      default: false,
     },
     category: {
       type: String,

@@ -1,4 +1,5 @@
 const Challenge = require("../models/challengeModel");
+const cloudinary = require("../config/cloudinary");
 
 const getAllChallenges = async (req, res) => {
   try {
@@ -22,10 +23,25 @@ const createChallenge = async (req, res) => {
       return res.status(400).json({ message: "some information are required" });
     }
 
+    // Upload file to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "attechments",
+      resource_type: "auto",
+      use_filename: true,
+      unique_filename: false,
+      flags: "attachment",
+    });
+
+    const downloadUrl = result.secure_url.replace(
+      "/upload/",
+      "/upload/fl_attachment/"
+    );
+
     const { title, description, points, hints, category } = req.body;
     const challenge = new Challenge({
       title,
       description,
+      attechment: downloadUrl,
       points,
       hints,
       category,

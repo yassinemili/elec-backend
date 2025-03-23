@@ -3,9 +3,8 @@ const cloudinary = require("../config/cloudinary");
 
 const getAllChallenges = async (req, res) => {
   try {
-    const challenges = await Challenge.find()
-      .populate("competitionId", "name")
-      .populate("submissions.teamId", "name");
+    const challenges = await Challenge.find();
+
     res.json(challenges);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

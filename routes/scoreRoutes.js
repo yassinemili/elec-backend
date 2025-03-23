@@ -4,6 +4,6 @@ const { getAllScores, createScore, getScoreById } = require("../controllers/scor
 
 router.get("/", getAllScores);
 router.post("/", createScore);
-router.get("/:id", getScoreById);
+router.get("/:scoreId", getScoreById);
 
 module.exports = router;

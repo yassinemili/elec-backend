@@ -1,15 +1,5 @@
 const Score = require("../models/scoreModel");
 
-const getAllScores = async (req, res) => {
-    try {
-        const scores = await Score.find()
-            .populate("submissionId", "submissionFile")
-            .populate("judgeId", "name");
-        res.json(scores);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
 
 const createScore = async (req, res) => {
     try {
@@ -19,6 +9,17 @@ const createScore = async (req, res) => {
         res.status(201).json(newScore);
     } catch (error) {
         res.status(400).json({ message: "Error creating score", error: error.message });
+    }
+};
+
+const getAllScores = async (req, res) => {
+    try {
+        const scores = await Score.find()
+            .populate("submissionId", "submissionFile")
+            .populate("judgeId", "name");
+        res.json(scores);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
@@ -34,4 +35,32 @@ const getScoreById = async (req, res) => {
     }
 };
 
-module.exports = { getAllScores, createScore, getScoreById };
+const updateScore = async (req, res) => {
+    try {
+        const { score } = req.body;
+        const { scoreId } = req.params;
+        const updatedScore = await Score.findByIdAndUpdate(scoreId, { score: score }, { new: true });
+        if (!updatedScore) return res.status(404).json({ message: "Score not found" });
+        res.json(updatedScore);
+    } catch (error) {
+        res.status(400).json({ message: "Error updating score", error: error.message });
+    }
+};
+
+const deleteScore = async (req, res) => {
+    try {
+        const score = await Score.findByIdAndDelete(req.params.id);
+        if (!score) return res.status(404).json({ message: "Score not found" });
+        res.json({ message: "Score deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+module.exports = {
+    createScore,
+    getAllScores,
+    getScoreById,
+    updateScore,
+    deleteScore
+};

@@ -1,4 +1,5 @@
 const Submission = require("../models/submissionModel");
+const Team = require("../models/teamModel");
 const cloudinary = require("../config/cloudinary");
 
 const getAllSubmissions = async (req, res) => {
@@ -34,13 +35,11 @@ const createSubmission = async (req, res) => {
     );
 
     // Create submission entry
-    const { challengeId, teamId, submittedAt, status, submissionText } =
+    const { challengeId, teamId, submissionText } =
       req.body;
     const submission = new Submission({
       challengeId,
       teamId,
-      submittedAt,
-      status,
       submissionFile: downloadUrl, // Store Cloudinary URL in MongoDB
       submissionText: submissionText || "",
     });
@@ -70,4 +69,33 @@ const getSubmissionById = async (req, res) => {
   }
 };
 
-module.exports = { getAllSubmissions, createSubmission, getSubmissionById };
+// get the score of all submisiions by team
+const getSubmissionScoresByTeam = async (req, res) => {
+  try {
+    const teamId = req.params.teamId;
+
+    const submissions = await Submission.find({ teamId }).populate("scores");
+
+    const allScores = submissions.flatMap((submission) =>
+      submission.scores ? submission.scores.map((score) => Number(score.score) || 0) : []
+    );
+
+    const totalScore = allScores.reduce((acc, curr) => acc + curr, 0);
+
+    await Team.findByIdAndUpdate(teamId, { scores: totalScore }, { new: true });
+
+    res.json({ totalScore });
+  } catch (error) {
+    console.error("Error fetching submission scores:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+module.exports = {
+  getAllSubmissions,
+  createSubmission,
+  getSubmissionById,
+  getSubmissionScoresByTeam
+};
+

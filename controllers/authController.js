@@ -1,6 +1,5 @@
 const User = require("../models/userModel.js");
 const Team = require("../models/teamModel.js");
-/* const Competition = require("../models/competitionModel.js"); */
 const bcrypt = require('bcryptjs');
 const { generateAccessToken } = require("../utils/tokenUtils");
 
@@ -8,47 +7,58 @@ const login = async (req, res) => {
   const { name, password } = req.body;
 
   try {
-    const user = await User.findOne({ name: name });
+    const user = await User.findOne({ name });
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    const team = await Team.findById(user.teamId);
-    if (!team) return res.status(404).json({ message: "Team not found" });
+    let teamData = null;
+    if (user.role === "participant") {
+      const team = await Team.findById(user.team);
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+      teamData = {
+        teamId: team._id,
+        teamName: team.name,
+      };
+    }
 
-/*     const competitionId = team.competitions[0];
-    const competition = await Competition.findById(competitionId);
-    if (!competition) return res.status(404).json({ message: "Competition not found" }); */
+    if (!user.passwordHash) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
-
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     const accessToken = await generateAccessToken({
       userId: user._id,
       role: user.role,
     });
 
-    res.cookie("token", accessToken, { httpOnly: true, secure: true });
+    res.cookie("token", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+
     res.json({
       message: "Logged in successfully",
       user: {
         userId: user._id,
         userName: user.name,
       },
-      team: {
-        teamId: team._id,
-        teamName: team.name,
-      },
-/*       competition: {
-        competitionId: competition._id,
-        competitionName: competition.name,
-      }, */
+      team: teamData,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 const resetPassword = async (req, res) => {
   const { name, newPassword } = req.body;

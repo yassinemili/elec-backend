@@ -7,32 +7,25 @@ const {
     updateUserRole,
     deleteUser,
     getUserSubmissions,
-/*     getUserParticipatedCompetitions, */
     getUserParticipatedChallenges,
     getUserParticipatedTeams,
 } = require("../controllers/userController");
 
-// User routes
-router.route("/")
-    .get(getAllUsers)
-    .post(createUser);
+const authenticateUser = require('../middlewares/authMiddleware');
+const authorizeRoles = require('../middlewares/authorizeRoles');
 
-router.route("/:id")
-    .get(getUserById)
-    .patch(updateUserRole)
-    .delete(deleteUser);
+router.get("/", authenticateUser, authorizeRoles('admin'), getAllUsers)
+router.post("/", authenticateUser, authorizeRoles('admin'), createUser);
 
-router.route("/:id/submissions")
-    .get(getUserSubmissions);
+router.get("/:id", authenticateUser, authorizeRoles('admin'), getUserById)
+router.patch("/:id", authenticateUser, authorizeRoles('admin'), updateUserRole)
+router.delete("/:id", authenticateUser, authorizeRoles('admin'), deleteUser);
 
-/* router.route("/:id/competitions")
-    .get(getUserParticipatedCompetitions); */
+router.get("/:id/submissions", authenticateUser, authorizeRoles('admin', 'participant'), getUserSubmissions);
 
-router.route("/:id/challenges")
-    .get(getUserParticipatedChallenges);
+router.get("/:id/challenges", authenticateUser, authorizeRoles('admin', 'participant'), getUserParticipatedChallenges);
 
-router.route("/:id/teams")
-    .get(getUserParticipatedTeams);
+router.get("/:id/teams", authenticateUser, authorizeRoles('admin', 'participant'), getUserParticipatedTeams);
 
 
 module.exports = router;

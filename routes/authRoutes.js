@@ -5,9 +5,7 @@ const {
     resetPassword
 } = require('../controllers/authController');
 
-const authenticateUser = require('../middlewares/authMiddleware');
-
 router.post('/login', login);
-router.post('/reset-password', authenticateUser, resetPassword);
+router.post('/reset-password', resetPassword);
 
 module.exports = router;

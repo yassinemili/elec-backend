@@ -1,17 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const upload = require("../middlewares/multer");
 const {
     getAllAnnouncements,
-    createAnnouncement,
-    getAnnouncementById,
-    updateAnnouncement,
-    deleteAnnouncement,
+    createAnnouncement
 } = require('../controllers/announcementController');
+const authenticateUser = require('../middlewares/authMiddleware');
+const authorizeRoles = require('../middlewares/authorizeRoles');
 
-router.get('/', getAllAnnouncements);
-router.get('/:id', getAnnouncementById);
-router.post('/', createAnnouncement);
-router.put('/:id', updateAnnouncement);
-router.delete('/:id', deleteAnnouncement);
+
+router.get("/", authenticateUser, authorizeRoles('admin', 'participant'), getAllAnnouncements);
+router.post("/", authenticateUser, authorizeRoles('admin'), upload.single('attachmentFile'), createAnnouncement);
 
 module.exports = router;

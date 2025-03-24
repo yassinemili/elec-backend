@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { getAllScores, createScore, getScoreById } = require("../controllers/scoreController");
+const { createScore } = require("../controllers/scoreController");
 
-router.get("/", getAllScores);
-router.post("/", createScore);
-router.get("/:scoreId", getScoreById);
+const authenticateUser = require('../middlewares/authMiddleware');
+const authorizeRoles = require('../middlewares/authorizeRoles');
+
+router.post("/", authenticateUser, authorizeRoles('admin'), createScore);
+
 
 module.exports = router;

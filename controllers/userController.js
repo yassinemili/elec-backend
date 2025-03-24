@@ -1,7 +1,6 @@
 const User = require("../models/userModel");
 const Team = require("../models/teamModel");
 const Submission = require("../models/submissionModel");
-/* const Competition = require("../models/competitionModel"); */
 const Challenge = require("../models/challengeModel");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
@@ -9,7 +8,7 @@ const mongoose = require("mongoose");
 const createUser = async (req, res) => {
   try {
     const { name, password, role, teamId } = req.body;
-    if (!name || !password || !role || !teamId) {
+    if (!name || !password || !role || (role === "participant" && !teamId)) {
       return res.status(400).json({ message: "Missing required fields" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,11 +20,13 @@ const createUser = async (req, res) => {
     });
     await user.save();
 
-    // Add user to team
-    const team = await Team.findById(teamId);
-    if (!team) return res.status(404).json({ message: "Team not found" });
-    team.members.push(user._id);
-    await team.save();
+    // Add user to team if role is "participant"
+    if (role === "participant") {
+      const team = await Team.findById(teamId);
+      if (!team) return res.status(404).json({ message: "Team not found" });
+      team.members.push(user._id);
+      await team.save();
+    }
 
     res.status(201).json(user);
   } catch (error) {
@@ -99,20 +100,6 @@ const getUserSubmissions = async (req, res) => {
   }
 };
 
-// Retrieve a user's participated competitions
-/* const getUserParticipatedCompetitions = async (req, res) => {
-  try {
-    const competitions = await Competition.find({
-      teams: { $in: [req.params.id] },
-    });
-    if (!competitions)
-      return res.status(404).json({ message: "User not found" });
-    res.json(competitions);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-}; */
-
 // Retrieve a user's participated challenges
 const getUserParticipatedChallenges = async (req, res) => {
   try {
@@ -150,7 +137,6 @@ module.exports = {
   updateUserRole,
   deleteUser,
   getUserSubmissions,
-
   getUserParticipatedChallenges,
   getUserParticipatedTeams,
 };

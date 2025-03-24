@@ -1,67 +1,61 @@
 const Announcement = require('../models/announcementModel');
+const { getIO } = require("../config/socket");
+const cloudinary = require("../config/cloudinary");
 
-// Get all announcements
 const getAllAnnouncements = async (req, res) => {
     try {
-        const announcements = await Announcement.find().populate('competitionId');
-        res.status(200).json(announcements);
+        const announcements = await Announcement.find();
+        res.json(announcements);
     } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Get a single announcement by ID
-const getAnnouncementById = async (req, res) => {
-    try {
-        const announcement = await Announcement.findById(req.params.id).populate('competitionId');
-        if (!announcement) {
-            return res.status(404).json({ message: "Announcement not found" });
-        }
-        res.status(200).json(announcement);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error });
-    }
-};
-
-// Create a new announcement
 const createAnnouncement = async (req, res) => {
     try {
-        const { competitionId, title, content } = req.body;
-        const newAnnouncement = new Announcement({ competitionId, title, content });
-        const savedAnnouncement = await newAnnouncement.save();
-        res.status(201).json(savedAnnouncement);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error });
-    }
-};
-
-// Update an existing announcement
-const updateAnnouncement = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updatedData = req.body;
-        const updatedAnnouncement = await Announcement.findByIdAndUpdate(id, updatedData, { new: true });
-        if (!updatedAnnouncement) {
-            return res.status(404).json({ message: "Announcement not found" });
+        const { title, content } = req.body;
+        if (!title || !content) {
+            return res.status(400).json({ message: "Missing required field(s)" });
         }
-        res.status(200).json(updatedAnnouncement);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error });
-    }
-};
 
-// Delete an announcement
-const deleteAnnouncement = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedAnnouncement = await Announcement.findByIdAndDelete(id);
-        if (!deletedAnnouncement) {
-            return res.status(404).json({ message: "Announcement not found" });
+        let downloadUrl = null;
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: "announcements",
+                resource_type: "auto",
+                use_filename: true,
+                unique_filename: false,
+            });
+
+            downloadUrl = result.secure_url.replace("/upload/", "/upload/fl_announcement/");
         }
-        res.status(200).json({ message: "Announcement deleted successfully" });
+
+        const announcement = await Announcement.create({ title, content, attachmentFile: downloadUrl });
+        if (!announcement) {
+            return res.status(400).json({ message: "Invalid announcement data" });
+        }
+
+        const io = getIO();
+        if (io) {
+            const timestamp = new Date().toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            });
+
+            io.emit("announcement", { message: "New Announcement", timestamp });
+        }
+
+        res.status(201).json(announcement);
     } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-module.exports = { getAllAnnouncements, createAnnouncement, getAnnouncementById, updateAnnouncement, deleteAnnouncement };
+
+module.exports = {
+    getAllAnnouncements,
+    createAnnouncement
+};
+

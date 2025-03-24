@@ -14,8 +14,9 @@ const challengeSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    attechment: {
+    attachmentFile: {
       type: String,
+      required: true,
     },
     hints: {
       type: [String],

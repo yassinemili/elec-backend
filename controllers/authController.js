@@ -24,7 +24,16 @@ const login = async (req, res) => {
         teamName: team.name,
       };
     }
-    let roleData = role === "participant" ? 1 : 1112;
+    let roleData = null;
+    if (user.role === "admin") {
+      roleData = {
+        role: "1112",
+      };
+    } else if (user.role === "participant") {
+      roleData = {
+        role: "1",
+      };
+    }
 
     if (!user.passwordHash) {
       return res.status(401).json({ message: "Invalid credentials" });

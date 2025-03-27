@@ -15,7 +15,7 @@ const login = async (req, res) => {
 
     let teamData = null;
     if (user.role === "participant") {
-      const team = await Team.findById(user.team);
+      const team = await Team.findById(user.teamId);
       if (!team) {
         return res.status(404).json({ message: "Team not found" });
       }

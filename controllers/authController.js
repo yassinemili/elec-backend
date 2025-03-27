@@ -24,6 +24,7 @@ const login = async (req, res) => {
         teamName: team.name,
       };
     }
+    let roleData = role === "participant" ? 1 : 1112;
 
     if (!user.passwordHash) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -52,6 +53,7 @@ const login = async (req, res) => {
         userName: user.name,
       },
       team: teamData,
+      role: roleData,
     });
   } catch (error) {
     console.error("Login Error:", error);

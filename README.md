@@ -43,9 +43,9 @@ Hackathon P0 is a full-stack application designed for managing a coding competit
    PORT=6000
    JWT_SECRET=ExampleTokenHere
 
-   CLOUDINARY_NAME=dtb5ywere
-   CLOUDINARY_API_KEY=888938986776671
-   CLOUDINARY_API_SECRET=iKO7qkfD0N4bChR99jCeo9-fdHY
+   CLOUDINARY_NAME=examle
+   CLOUDINARY_API_KEY=example
+   CLOUDINARY_API_SECRET=example
    ```
 
 Run the App:

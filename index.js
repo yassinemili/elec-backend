@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const http = require("http");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 
 const connectDB = require("./config/db");
 const errorHandler = require("./middlewares/errorMiddleware");

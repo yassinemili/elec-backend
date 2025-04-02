@@ -12,7 +12,7 @@ const getAllChallenges = async (req, res) => {
 
 const createChallenge = async (req, res) => {
   try {
-    if (!req.body.title || !req.body.description || !req.body.points || !req.body.category || req.body.wave) {
+    if (!req.body.title || !req.body.description || !req.body.points || !req.body.category || !req.body.wave) {
       return res.status(400).json({ message: "Some information are required" });
     }
 

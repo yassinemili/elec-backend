@@ -104,12 +104,6 @@ const getTeamsRank = async (req, res) => {
     }
 };
 
-
-
-
-
-
-
 module.exports = {
     createTeam,
     getAllTeams,

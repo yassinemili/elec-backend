@@ -23,7 +23,12 @@ const setupSocket = require("./config/socket");
 
 const app = express();
 const server = http.createServer(app);
-app.use(cors("*"));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Set the frontend URL explicitly
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  })
+);
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cookieParser());

@@ -1,6 +1,8 @@
 const User = require("../models/userModel.js");
 const Team = require("../models/teamModel.js");
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const { generateAccessToken } = require("../utils/tokenUtils");
 
 const login = async (req, res) => {
@@ -70,7 +72,6 @@ const login = async (req, res) => {
   }
 };
 
-
 const resetPassword = async (req, res) => {
   const { name, newPassword } = req.body;
 
@@ -90,8 +91,31 @@ const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+const authCheck = (req, res) => {
+  try {
+    const token = req.cookies?.token; // ✅ Ensure token exists
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+
+      res.json({
+        message: "Authenticated",
+        user: { userId: decoded.userId, role: decoded.role },
+      });
+    });
+  } catch (error) {
+    console.error("Auth Check Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 module.exports = {
+  authCheck,
   login,
   resetPassword,
 };

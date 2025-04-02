@@ -27,6 +27,10 @@ const challengeSchema = new mongoose.Schema(
       enum: ["AI", "Graphic Design", "Problem Solving", "Cyber Security"],
       required: true,
     },
+    wave: {
+      type: Number,
+      required: true
+    }
   },
   { timestamps: true }
 );

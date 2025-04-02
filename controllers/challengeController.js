@@ -12,7 +12,7 @@ const getAllChallenges = async (req, res) => {
 
 const createChallenge = async (req, res) => {
   try {
-    if (!req.body.title || !req.body.description || !req.body.points || !req.body.category) {
+    if (!req.body.title || !req.body.description || !req.body.points || !req.body.category || !req.body.wave) {
       return res.status(400).json({ message: "Some information are required" });
     }
 
@@ -30,7 +30,7 @@ const createChallenge = async (req, res) => {
 
     const downloadUrl = result.secure_url.replace("/upload/", "/upload/fl_attachment/");
 
-    const { title, description, points, hints, category } = req.body;
+    const { title, description, points, hints, category, wave } = req.body;
     const challenge = new Challenge({
       title,
       description,
@@ -38,6 +38,7 @@ const createChallenge = async (req, res) => {
       points,
       hints,
       category,
+      wave,
     });
 
     await challenge.save();
@@ -58,4 +59,15 @@ const getChallengeById = async (req, res) => {
   }
 };
 
-module.exports = { getAllChallenges, createChallenge, getChallengeById };
+const getChallengesByWave = async (req, res) => {
+  try {
+    const challenges = await Challenge.find({ wave: req.params.wave });
+    if (!challenges)
+      return res.status(404).json({ message: "Challenges not found" });
+    res.json(challenges);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = { getAllChallenges, createChallenge, getChallengeById, getChallengesByWave };

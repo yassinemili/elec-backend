@@ -104,6 +104,17 @@ const getTeamsRank = async (req, res) => {
     }
 };
 
+const getTeams = async (req, res) => {
+    try {
+        const teams = await Team.find({}, { _id: 1, name: 1, totalScore: 1 });
+        res.json(teams);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+
 module.exports = {
     createTeam,
     getAllTeams,
@@ -111,4 +122,5 @@ module.exports = {
     removeUserFromTeam,
     getTeamMembers,
     getTeamsRank,
+    getTeams
 };

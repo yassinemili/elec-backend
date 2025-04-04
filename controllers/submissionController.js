@@ -16,8 +16,12 @@ const getAllSubmissions = async (req, res) => {
 
 const createSubmission = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+    const existingSubmission = await Submission.findOne({
+      teamId: req.body.teamId,
+      challengeId: req.body.challengeId,
+    });
+    if (existingSubmission) {
+      return res.status(400).json({ message: "Submission already exists" });
     }
 
     // Upload file to Cloudinary

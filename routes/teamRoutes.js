@@ -14,7 +14,7 @@ const authenticateUser = require('../middlewares/authMiddleware');
 const authorizeRoles = require('../middlewares/authorizeRoles');
 
 
-router.get("/", authenticateUser, authorizeRoles('admin'), getAllTeams);
+router.get("/", authenticateUser, authorizeRoles('admin', 'participant'), getAllTeams);
 router.post("/", authenticateUser, authorizeRoles('admin'), createTeam);
 router.delete("/:id", authenticateUser, authorizeRoles('admin'), deleteTeam);
 router.delete("/:teamId/users/:userId", authenticateUser, authorizeRoles('admin'), removeUserFromTeam);

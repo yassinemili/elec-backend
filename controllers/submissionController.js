@@ -46,6 +46,7 @@ const createSubmission = async (req, res) => {
       teamId,
       submissionFile: downloadUrl, // Store Cloudinary URL in MongoDB
       submissionText: submissionText || "",
+      isSolved: true,
     });
 
     await submission.save();

@@ -17,9 +17,16 @@ const submissionSchema = new mongoose.Schema(
       enum: ["pending", "reviewed"],
       default: "pending",
     },
-    submissionFile: { type: String },
-    submissionText: { type: String },
-
+    submissionFile: {
+      type: String
+    },
+    submissionText: {
+      type: String
+    },
+    isSolved: {
+      type: Boolean,
+      default: false,
+    },
     scores: [
       {
         type: mongoose.Schema.Types.ObjectId,

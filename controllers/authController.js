@@ -49,6 +49,7 @@ const login = async (req, res) => {
     const accessToken = await generateAccessToken({
       userId: user._id,
       role: user.role,
+      teamId: user.teamId,
     });
 
     res.cookie("token", accessToken, {

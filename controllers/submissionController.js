@@ -16,49 +16,59 @@ const getAllSubmissions = async (req, res) => {
 
 const createSubmission = async (req, res) => {
   try {
+    const { challengeId, teamId, submissionText } = req.body;
+
+    // Prevent duplicate submissions for the same challenge by the same team
     const existingSubmission = await Submission.findOne({
-      teamId: req.body.teamId,
-      challengeId: req.body.challengeId,
+      teamId,
+      challengeId,
     });
+
     if (existingSubmission) {
       return res.status(400).json({ message: "Submission already exists" });
     }
 
-    // Upload file to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "submissions",
-      resource_type: "auto",
-      use_filename: true,
-      unique_filename: false,
-      flags: "attachment",
-    });
+    let downloadUrl = null;
 
-    const downloadUrl = result.secure_url.replace(
-      "/upload/",
-      "/upload/fl_attachment/"
-    );
+    // Only upload file if it exists
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "submissions",
+        resource_type: "auto",
+        use_filename: true,
+        unique_filename: false,
+        flags: "attachment",
+      });
+
+      downloadUrl = result.secure_url.replace(
+        "/upload/",
+        "/upload/fl_attachment/"
+      );
+    }
 
     // Create submission entry
-    const { challengeId, teamId, submissionText } =
-      req.body;
     const submission = new Submission({
       challengeId,
       teamId,
-      submissionFile: downloadUrl, // Store Cloudinary URL in MongoDB
+      submissionFile: downloadUrl, // Will be null if no file
       submissionText: submissionText || "",
       isSolved: true,
     });
 
     await submission.save();
-    res
-      .status(201)
-      .json({ message: "Submission created successfully", submission });
+
+    res.status(201).json({
+      message: "Submission created successfully",
+      submission,
+    });
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Error creating submission", error: error.message });
+    res.status(400).json({
+      message: "Error creating submission",
+      error: error.message,
+    });
   }
 };
+
 
 const getSubmissionById = async (req, res) => {
   try {

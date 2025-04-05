@@ -1,4 +1,5 @@
 const Challenge = require("../models/challengeModel");
+const Submission = require("../models/submissionModel");
 const cloudinary = require("../config/cloudinary");
 
 const getAllChallenges = async (req, res) => {
@@ -61,9 +62,25 @@ const getChallengeById = async (req, res) => {
 
 const getChallengesByWave = async (req, res) => {
   try {
-    const challenges = await Challenge.find({ wave: req.params.wave });
-    if (!challenges)
-      return res.status(404).json({ message: "Challenges not found" });
+    const team = req.user.teamId;
+
+    const challenges = await Challenge.find({ wave: req.params.wave }).lean();
+
+    if (!challenges.length) {
+      return res.status(404).json({ message: "No challenges found for this wave" });
+    }
+
+    // For each challenge, check if this team has solved it
+    for (let challenge of challenges) {
+      const submission = await Submission.findOne({
+        challengeId: challenge._id,
+        teamId: team
+      }).select('isSolved').lean();
+
+      // If submission exists, use its isSolved value; otherwise, default to false
+      challenge.isSolved = submission ? submission.isSolved : false;
+    }
+
     res.json(challenges);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

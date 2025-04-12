@@ -6,6 +6,7 @@ const {
   createSubmission,
   getSubmissionById,
   getSubmissionScoresByTeam,
+  getSubmissionScoresByCategory
 } = require("../controllers/submissionController");
 
 const authenticateUser = require('../middlewares/authMiddleware');
@@ -16,5 +17,6 @@ router.get("/", authenticateUser, authorizeRoles('admin'), getAllSubmissions);
 router.post("/", authenticateUser, authorizeRoles('admin', 'participant'), upload.single("submissionFile"), createSubmission);
 router.get("/:id", authenticateUser, authorizeRoles('admin'), getSubmissionById);
 router.get("/team/:teamId/scores", authenticateUser, authorizeRoles('admin', 'participant'), getSubmissionScoresByTeam);
+router.get("/team/:teamId/scores/category", authenticateUser, authorizeRoles('admin', 'participant'), getSubmissionScoresByCategory);
 
 module.exports = router;

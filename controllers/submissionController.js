@@ -106,11 +106,43 @@ const getSubmissionScoresByTeam = async (req, res) => {
   }
 };
 
+// get the scores of all challenges clasified by categorys that we find in chellenge model for team submission
+const getSubmissionScoresByCategory = async (req, res) => {
+  try {
+    const teamId = req.params.teamId;
+
+    const submissions = await Submission.find({ teamId })
+      .populate("challengeId", "category")
+      .populate("scores");
+
+    const scoresByCategory = {};
+
+    submissions.forEach((submission) => {
+      const category = submission.challengeId.category;
+      const scores = submission.scores || [];
+
+      if (!scoresByCategory[category]) {
+        scoresByCategory[category] = [];
+      }
+
+      scores.forEach((score) => {
+        scoresByCategory[category].push(Number(score.score) || 0);
+      });
+    });
+
+    res.json(scoresByCategory);
+  } catch (error) {
+    console.error("Error fetching submission scores by category:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 
 module.exports = {
   getAllSubmissions,
   createSubmission,
   getSubmissionById,
-  getSubmissionScoresByTeam
+  getSubmissionScoresByTeam,
+  getSubmissionScoresByCategory
 };
 

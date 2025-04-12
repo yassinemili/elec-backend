@@ -24,7 +24,7 @@ const challengeSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["AI", "Graphic Design", "Problem Solving", "Cyber Security"],
+      enum: ["AI", "GD", "PS", "CS"],
       required: true,
     },
     wave: {

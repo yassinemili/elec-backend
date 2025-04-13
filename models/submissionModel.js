@@ -12,16 +12,21 @@ const submissionSchema = new mongoose.Schema(
       ref: "Team",
       required: true,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     status: {
       type: String,
       enum: ["pending", "reviewed"],
       default: "pending",
     },
     submissionFile: {
-      type: String
+      type: String,
     },
     submissionText: {
-      type: String
+      type: String,
     },
     isSolved: {
       type: Boolean,

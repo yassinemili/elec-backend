@@ -35,6 +35,7 @@ const createScore = async (req, res) => {
     // Update the submission with the new score
     updatedSubmission.scores.push(newScore._id);
     updatedSubmission.status = "reviewed";
+    updatedSubmission.isSolved = true;
     await updatedSubmission.save();
 
     // Populate the updated submission to include score details

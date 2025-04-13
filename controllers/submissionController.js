@@ -7,7 +7,30 @@ const getAllSubmissions = async (req, res) => {
     const submissions = await Submission.find()
       .populate("challengeId", "title")
       .populate("teamId", "name")
+      .populate("userId", "name")
       .populate("scores");
+    res.json(submissions);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const getSubmissionByTeamId = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+
+    const submissions = await Submission.find({ teamId })
+      .populate("challengeId", "title")
+      .populate("teamId", "name")
+      .populate("userId", "name")
+      .populate("scores");
+
+    if (!submissions || submissions.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No submissions found for this team" });
+    }
+
     res.json(submissions);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -16,12 +39,13 @@ const getAllSubmissions = async (req, res) => {
 
 const createSubmission = async (req, res) => {
   try {
-    const { challengeId, teamId, submissionText } = req.body;
+    const { challengeId, teamId, userId, submissionText } = req.body;
 
     // Prevent duplicate submissions for the same challenge by the same team
     const existingSubmission = await Submission.findOne({
       teamId,
       challengeId,
+      userId,
     });
 
     if (existingSubmission) {
@@ -50,9 +74,10 @@ const createSubmission = async (req, res) => {
     const submission = new Submission({
       challengeId,
       teamId,
+      userId,
       submissionFile: downloadUrl, // Will be null if no file
       submissionText: submissionText || "",
-      isSolved: true,
+      isSolved: false,
     });
 
     await submission.save();
@@ -68,7 +93,6 @@ const createSubmission = async (req, res) => {
     });
   }
 };
-
 
 const getSubmissionById = async (req, res) => {
   try {
@@ -92,7 +116,9 @@ const getSubmissionScoresByTeam = async (req, res) => {
     const submissions = await Submission.find({ teamId }).populate("scores");
 
     const allScores = submissions.flatMap((submission) =>
-      submission.scores ? submission.scores.map((score) => Number(score.score) || 0) : []
+      submission.scores
+        ? submission.scores.map((score) => Number(score.score) || 0)
+        : []
     );
 
     const totalScore = allScores.reduce((acc, curr) => acc + curr, 0);
@@ -106,11 +132,10 @@ const getSubmissionScoresByTeam = async (req, res) => {
   }
 };
 
-
 module.exports = {
   getAllSubmissions,
   createSubmission,
   getSubmissionById,
-  getSubmissionScoresByTeam
+  getSubmissionScoresByTeam,
+  getSubmissionByTeamId,
 };
-

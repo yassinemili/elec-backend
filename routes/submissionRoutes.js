@@ -6,14 +6,13 @@ const {
   createSubmission,
   getSubmissionById,
   getSubmissionScoresByTeam,
-  getSubmissionByTeamId,
+  getSubmissionScoresByCategory,
 } = require("../controllers/submissionController");
 
 const authenticateUser = require("../middlewares/authMiddleware");
 const authorizeRoles = require("../middlewares/authorizeRoles");
 
 router.get("/", authenticateUser, authorizeRoles("admin"), getAllSubmissions);
-router.get("/team/:teamId", getSubmissionByTeamId);
 router.post(
   "/",
   authenticateUser,
@@ -32,6 +31,12 @@ router.get(
   authenticateUser,
   authorizeRoles("admin", "participant"),
   getSubmissionScoresByTeam
+);
+router.get(
+  "/team/:teamId/scores/category",
+  authenticateUser,
+  authorizeRoles("admin", "participant"),
+  getSubmissionScoresByCategory
 );
 
 module.exports = router;

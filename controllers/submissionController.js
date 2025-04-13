@@ -169,4 +169,5 @@ module.exports = {
   getSubmissionById,
   getSubmissionScoresByTeam,
   getSubmissionScoresByCategory,
+  getSubmissionByTeamId,
 };

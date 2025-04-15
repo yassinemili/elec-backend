@@ -25,10 +25,26 @@ const setupSocket = require("./config/socket");
 
 const app = express();
 const server = http.createServer(app);
+const allowedOrigins = [
+  "http://localhost:5173", // Dev
+  "http://127.0.0.1:5173", // Dev alternative
+  "https://p0-api.onrender.com", // Prod
+];
 app.use(
   cors({
-    origin: "http://localhost:5173", // Set the frontend URL explicitly
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g., curl, Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        // Reject request if origin is not in whitelist
+        return callback(new Error("CORS policy: This origin is not allowed."));
+      }
+    },
+    credentials: true, // Allow cookies/auth headers
+    optionsSuccessStatus: 200, // Handle legacy browsers
   })
 );
 app.use(express.json());

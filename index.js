@@ -29,7 +29,7 @@ const server = http.createServer(app);
 app.use(
   cors({
     origin: ["http://localhost:5173", "https://your-production-frontend.com"],
-    credentials: true, // ✅ Allow cookies to be sent
+    credentials: true, //  Allow cookies to be sent
   })
 );
 app.use(express.json());

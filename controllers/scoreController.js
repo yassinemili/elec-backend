@@ -1,5 +1,7 @@
 const Score = require("../models/scoreModel");
 const Submission = require("../models/submissionModel");
+const User = require("../models/userModel");
+const Challenge = require("../models/challengeModel");
 const Team = require("../models/teamModel");
 const { getIO } = require("../config/socket");
 const mongoose = require("mongoose");
@@ -52,6 +54,19 @@ const createScore = async (req, res) => {
     // Update the team's total score
     team.totalScore += score;
     await team.save();
+
+    const submition = await Submission.findById(submissionId);
+    const challengeId = submition.challengeId;
+    const selctedChallenge = await Challenge.findById(challengeId);
+    const selctedCategory = selctedChallenge.category;
+    const userId = submition.userId;
+    const selectedUser = await User.findById(userId);
+
+    selectedUser.statistics.challengeSolved[selctedCategory] += score;
+
+    const { AI, CS, GD, PS } = selectedUser.statistics.challengeSolved;
+    selectedUser.statistics.score = AI + CS + GD + PS;
+    await selectedUser.save();
 
     // Emit the updated team data to clients using Socket.io
     const io = getIO();

@@ -23,7 +23,6 @@ router.post("/send", (req, res) => {
   }); // HH:MM AM/PM format
 
   io.emit("notification", { message, timestamp });
-  console.log("Notification sent:", { message, timestamp });
 
   res.json({
     success: true,

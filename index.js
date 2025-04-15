@@ -19,6 +19,7 @@ const notificationRoutes = require("./routes/notificationsRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const authRoutes = require("./routes/authRoutes");
 const mentorRoutes = require("./routes/mentorRouter");
+const videoRoutes = require("./routes/videosRoutes");
 
 const setupSocket = require("./config/socket");
 
@@ -51,6 +52,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/mentors", mentorRoutes);
+app.use("/api/videos", videoRoutes);
 
 const PORT = process.env.PORT || 6010;
 connectDB();

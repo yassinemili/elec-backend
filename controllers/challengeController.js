@@ -64,7 +64,8 @@ const getChallengesByWave = async (req, res) => {
   try {
     const team = req.user.teamId;
 
-    const challenges = await Challenge.find({ wave: req.params.wave }).lean();
+    const status = "active";
+    const challenges = await Challenge.find({ wave: req.params.wave, status }).lean();
 
     if (!challenges.length) {
       return res.status(404).json({ message: "No challenges found for this wave" });
@@ -86,5 +87,30 @@ const getChallengesByWave = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+// change status of challenge
+const updateChallengeStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-module.exports = { getAllChallenges, createChallenge, getChallengeById, getChallengesByWave };
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const challenge = await Challenge.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!challenge) {
+      return res.status(404).json({ message: "Challenge not found" });
+    }
+
+    res.json(challenge);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = { getAllChallenges, createChallenge, getChallengeById, getChallengesByWave, updateChallengeStatus };

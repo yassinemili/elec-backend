@@ -30,7 +30,12 @@ const challengeSchema = new mongoose.Schema(
     wave: {
       type: Number,
       required: true
-    }
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "inactive",
+    },
   },
   { timestamps: true }
 );

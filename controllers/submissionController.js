@@ -5,7 +5,7 @@ const cloudinary = require("../config/cloudinary");
 const getAllSubmissions = async (req, res) => {
   try {
     const submissions = await Submission.find()
-      .populate("challengeId", "title")
+      .populate("challengeId")
       .populate("teamId", "name")
       .populate("userId", "name")
       .populate("scores");

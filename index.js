@@ -28,8 +28,10 @@ const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://elec-frontend.vercel.app/"],
-    credentials: true, //  Allow cookies to be sent
+    origin: ["http://localhost:5173", "https://elec-frontend.vercel.app"],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
 app.use(express.json());

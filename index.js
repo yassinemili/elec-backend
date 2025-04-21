@@ -28,7 +28,7 @@ const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://your-production-frontend.com"],
+    origin: ["http://localhost:5173", "https://elec-frontend.vercel.app/"],
     credentials: true, //  Allow cookies to be sent
   })
 );

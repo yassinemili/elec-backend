@@ -35,6 +35,9 @@ const challengeSchema = new mongoose.Schema(
       enum: ["active", "inactive"],
       default: "inactive",
     },
+    difficulty: {
+      type: String
+    }
   },
   { timestamps: true }
 );

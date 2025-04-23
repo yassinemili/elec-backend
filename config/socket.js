@@ -5,7 +5,7 @@ let io; // Define io globally
 module.exports = (server) => {
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:5173", "https://elec-frontend.vercel.app"],
+      origin: "*",
       methods: ["GET", "POST"],
     },
   });

@@ -21,10 +21,11 @@ const authRoutes = require("./routes/authRoutes");
 const mentorRoutes = require("./routes/mentorRouter");
 const videoRoutes = require("./routes/videosRoutes");
 
-/* const setupSocket = require("./config/socket"); */
+
+const setupSocket = require("./config/socket");
 
 const app = express();
-/* const server = http.createServer(app); */
+const server = http.createServer(app);
 
 app.use(
   cors({
@@ -42,7 +43,8 @@ app.use(cookieParser());
 app.use(errorHandler);
 
 // Socket.io
-/* setupSocket(server); */
+setupSocket(server);
+
 
 // Routes
 app.use("/api/users", userRoutes);
@@ -56,6 +58,8 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/mentors", mentorRoutes);
 app.use("/api/videos", videoRoutes);
+
+
 
 const PORT = process.env.PORT || 6010;
 connectDB();

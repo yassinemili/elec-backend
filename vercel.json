@@ -10,13 +10,6 @@
     {
       "src": "/(.*)",
       "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "http://localhost:5173"
-        },
-        { "key": "Access-Control-Allow-Credentials", "value": "true" }
-      ],
       "dest": "index.js"
     }
   ]

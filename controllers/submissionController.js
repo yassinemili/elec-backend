@@ -79,17 +79,15 @@ const createSubmission = async (req, res) => {
       submissionText: submissionText || "",
       isSolved: false,
     });
-
+    let newScore;
     const existingScore = await Score.findOne({ submissionId: submission._id });
     if (!existingScore) {
-      const newScore = new Score({
+      newScore = new Score({
         submissionId: submission._id,
         score: 0,
-        feedback: "",
       });
       await newScore.save();
     }
-
     submission.scores = [newScore._id];
     await submission.save();
 

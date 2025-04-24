@@ -15,7 +15,6 @@ module.exports = {
         origin: [
           "http://localhost:5173",
           "https://elec-frontend.vercel.app",
-          "https://socket-p0.vercel.app",
           "https://socket-p0.onrender.com"
         ],
         methods: ["GET", "POST"],

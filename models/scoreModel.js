@@ -10,7 +10,6 @@ const scoreSchema = new mongoose.Schema(
         judgeId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true,
         },
         score: {
             type: Number,

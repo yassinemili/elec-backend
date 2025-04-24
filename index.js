@@ -22,7 +22,7 @@ const mentorRoutes = require("./routes/mentorRouter");
 const videoRoutes = require("./routes/videosRoutes");
 
 
-const { init } = require("./config/socket");
+const { init: initSocket } = require("./config/socket");
 
 /* const setupSocket = require("./config/socket"); */
 
@@ -46,8 +46,7 @@ app.use(errorHandler);
 
 // Socket.io
 /* setupSocket(server); */
-
-const io = init(server);
+initSocket(server);
 
 
 // Routes

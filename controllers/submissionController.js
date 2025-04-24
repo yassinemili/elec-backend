@@ -41,18 +41,15 @@ const createSubmission = async (req, res) => {
   try {
     const { challengeId, teamId, userId, submissionText } = req.body;
 
-    // Prevent duplicate submissions for the same challenge by the same team
-    const existingSubmission = await Submission.findOne({
-      teamId,
-      challengeId,
-      userId,
-    });
-
-    if (existingSubmission) {
-      return res.status(400).json({ message: "Submission already exists" });
-    }
-
     let downloadUrl = null;
+
+    const submition = await Submission.find({ teamId, challengeId });
+
+    if (submition.length > 0) {
+      return res.status(400).json({
+        message: "You have already submitted a solution for this challenge",
+      });
+    }
 
     // Only upload file if it exists
     if (req.file) {

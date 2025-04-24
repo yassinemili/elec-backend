@@ -43,7 +43,11 @@ let io = null;
 function setupSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: ["*", "https://elec-frontend.vercel.app"],
+      origin: [
+        "http://localhost:5173",
+        "https://elec-frontend.vercel.app",
+        "https://socket-p0.onrender.com"
+      ],
       methods: ["GET", "POST"],
       credentials: true
     },

@@ -8,6 +8,8 @@ const {
   getSubmissionScoresByTeam,
   getSubmissionScoresByCategory,
   getSubmissionByTeamId,
+  updateSubmission,
+  getSubmissionByChallengeIdAndTeamId
 } = require("../controllers/submissionController");
 
 const authenticateUser = require("../middlewares/authMiddleware");
@@ -27,12 +29,22 @@ router.post(
   upload.single("submissionFile"),
   createSubmission
 );
+
+router.patch(
+  '/submissions/:submissionId',
+  authenticateUser,
+  authorizeRoles("admin", "participant"),
+  upload.single('file'),
+  updateSubmission
+);
+
 router.get(
   "/:id",
   authenticateUser,
   authorizeRoles("admin"),
   getSubmissionById
 );
+
 router.get(
   "/team/:teamId/scores",
   authenticateUser,
@@ -44,6 +56,13 @@ router.get(
   authenticateUser,
   authorizeRoles("admin", "participant"),
   getSubmissionScoresByCategory
+);
+
+router.get(
+  "/submission/:teamId/:challengeId",
+  authenticateUser,
+  authorizeRoles("admin"),
+  getSubmissionByChallengeIdAndTeamId
 );
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const Submission = require("../models/submissionModel");
+const Score = require("../models/scoreModel");
 const Team = require("../models/teamModel");
 const cloudinary = require("../config/cloudinary");
 
@@ -41,6 +42,16 @@ const createSubmission = async (req, res) => {
   try {
     const { challengeId, teamId, userId, submissionText } = req.body;
 
+    // Prevent duplicate submissions for the same challenge by the same team
+    const existingSubmission = await Submission.findOne({
+      teamId,
+      challengeId,
+    });
+
+    if (existingSubmission) {
+      return res.status(400).json({ message: "Submission already exists" });
+    }
+
     let downloadUrl = null;
 
     const submition = await Submission.find({ teamId, challengeId });
@@ -79,6 +90,14 @@ const createSubmission = async (req, res) => {
 
     await submission.save();
 
+    const newScore = new Score({
+      submissionId: submission._id,
+      score: 0,
+      feedback: "",
+    });
+
+    await newScore.save();
+
     res.status(201).json({
       message: "Submission created successfully",
       submission,
@@ -86,6 +105,50 @@ const createSubmission = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       message: "Error creating submission",
+      error: error.message,
+    });
+  }
+};
+
+const updateSubmission = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+    const { submissionText } = req.body;
+
+    const submission = await Submission.findById(submissionId);
+    if (!submission) {
+      return res.status(404).json({ message: "Submission not found" });
+    }
+
+    // Optional file update
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "submissions",
+        resource_type: "auto",
+        use_filename: true,
+        unique_filename: false,
+        flags: "attachment",
+      });
+
+      submission.submissionFile = result.secure_url.replace(
+        "/upload/",
+        "/upload/fl_attachment/"
+      );
+    }
+
+    if (typeof submissionText === "string") {
+      submission.submissionText = submissionText;
+    }
+
+    await submission.save();
+
+    res.status(200).json({
+      message: "Submission updated successfully",
+      submission,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Error updating submission",
       error: error.message,
     });
   }
@@ -159,6 +222,32 @@ const getSubmissionScoresByCategory = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+const getSubmissionByChallengeIdAndTeamId = async (req, res) => {
+  try {
+    const { teamId, challengeId } = req.params;
+
+    if (!teamId || !challengeId) {
+      return res
+        .status(400)
+        .json({ message: "teamId and challengeId are required" });
+    }
+
+    const result = await Submission.findOne({ teamId, challengeId }).populate(
+      "scores"
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Submission not found" });
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching submission:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
 
 module.exports = {
   getAllSubmissions,
@@ -167,4 +256,6 @@ module.exports = {
   getSubmissionScoresByTeam,
   getSubmissionScoresByCategory,
   getSubmissionByTeamId,
+  updateSubmission,
+  getSubmissionByChallengeIdAndTeamId,
 };

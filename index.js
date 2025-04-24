@@ -22,16 +22,16 @@ const mentorRoutes = require("./routes/mentorRouter");
 const videoRoutes = require("./routes/videosRoutes");
 
 
-const { init: initSocket } = require("./config/socket");
+/* const { init: initSocket } = require("./config/socket"); */
 
-/* const setupSocket = require("./config/socket"); */
+const { setupSocket } = require("./config/socket");
 
 const app = express();
 const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: ["http://localhost:5174", "https://elec-frontend.vercel.app", "https://socket-p0.onrender.com/"],
+    origin: ["http://localhost:5173", "https://elec-frontend.vercel.app", "https://socket-p0.onrender.com/"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -45,8 +45,8 @@ app.use(cookieParser());
 app.use(errorHandler);
 
 // Socket.io
-/* setupSocket(server); */
-initSocket(server);
+setupSocket(server);
+/* initSocket(server); */
 
 
 // Routes

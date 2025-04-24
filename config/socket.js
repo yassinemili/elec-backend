@@ -1,14 +1,10 @@
 // config/socket.js
-const { Server } = require("socket.io");
+/* const { Server } = require("socket.io");
 
 let io;
 
 module.exports = {
-  /**
-   * Initialize Socket.IO on an existing HTTP server.
-   * @param {import("http").Server} server
-   * @returns {import("socket.io").Server}
-   */
+
   init: (server) => {
     io = new Server(server, {
       cors: {
@@ -22,7 +18,6 @@ module.exports = {
       }
     });
 
-    // optional: connection logging
     io.on("connection", (socket) => {
       console.log("Socket connected:", socket.id);
       socket.on("disconnect", () => {
@@ -33,10 +28,6 @@ module.exports = {
     return io;
   },
 
-  /**
-   * @throws if init() has not been called yet
-   * @returns {import("socket.io").Server}
-   */
   getIO: () => {
     if (!io) {
       throw new Error("Socket.io not initialized");
@@ -44,3 +35,37 @@ module.exports = {
     return io;
   }
 };
+ */
+const { Server } = require("socket.io");
+
+let io = null;
+
+function setupSocket(server) {
+  io = new Server(server, {
+    cors: {
+      origin: ["*", "https://elec-frontend.vercel.app"],
+      methods: ["GET", "POST"],
+    },
+  });
+
+  io.on("connection", (socket) => {
+    socket.on("sendMessage", (data) => {
+      io.emit("receiveMessage", data);
+    });
+
+    socket.on("disconnect", () => {
+      // handle disconnect if needed
+    });
+  });
+
+  return io;
+}
+
+function getIO() {
+  if (!io) {
+    throw new Error("Socket.io not initialized. Call setupSocket(server) first.");
+  }
+  return io;
+}
+
+module.exports = { setupSocket, getIO };

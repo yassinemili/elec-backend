@@ -45,6 +45,7 @@ function setupSocket(server) {
     cors: {
       origin: ["*", "https://elec-frontend.vercel.app"],
       methods: ["GET", "POST"],
+      credentials: true
     },
   });
 

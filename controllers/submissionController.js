@@ -80,15 +80,18 @@ const createSubmission = async (req, res) => {
       isSolved: false,
     });
 
+    const existingScore = await Score.findOne({ submissionId: submission._id });
+    if (!existingScore) {
+      const newScore = new Score({
+        submissionId: submission._id,
+        score: 0,
+        feedback: "",
+      });
+      await newScore.save();
+    }
+
+    submission.scores = [newScore._id];
     await submission.save();
-
-    const newScore = new Score({
-      submissionId: submission._id,
-      score: 0,
-      feedback: "",
-    });
-
-    await newScore.save();
 
     res.status(201).json({
       message: "Submission created successfully",
@@ -236,6 +239,66 @@ const getSubmissionByChallengeIdAndTeamId = async (req, res) => {
   }
 };
 
+const deleteSubmission = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+
+    // Validate ID
+    if (!mongoose.Types.ObjectId.isValid(submissionId)) {
+      return res.status(400).json({ message: "Invalid submissionId format" });
+    }
+
+    const submission = await Submission.findById(submissionId);
+    if (!submission) {
+      return res.status(404).json({ message: "Submission not found" });
+    }
+
+    // Remove associated scores and calculate score impact
+    const scores = await Score.find({ _id: { $in: submission.scores } });
+
+    let totalScoreRemoved = 0;
+    for (const s of scores) {
+      totalScoreRemoved += s.score;
+      await s.deleteOne();
+    }
+
+    // Update team totalScore
+    const team = await Team.findById(submission.teamId);
+    if (team) {
+      team.totalScore -= totalScoreRemoved;
+      await team.save();
+    }
+
+    // Update user statistics
+    const challenge = await Challenge.findById(submission.challengeId);
+    const category = challenge.category;
+
+    const user = await User.findById(submission.userId);
+    if (user) {
+      user.statistics.challengeSolved[category] =
+        (user.statistics.challengeSolved[category] || 0) - totalScoreRemoved;
+
+      const { AI, CS, GD, PS } = user.statistics.challengeSolved;
+      user.statistics.score = AI + CS + GD + PS;
+      await user.save();
+    }
+
+    // Delete the submission
+    await submission.deleteOne();
+
+    // Notify clients
+    const io = getIO();
+    if (team) io.emit("teams:update", team);
+
+    res.status(200).json({ message: "Submission and associated scores deleted" });
+
+  } catch (error) {
+    console.error("Error deleting submission:", error);
+    res.status(500).json({ message: "Error deleting submission", error: error.message });
+  }
+};
+
+
 
 module.exports = {
   getAllSubmissions,
@@ -245,5 +308,6 @@ module.exports = {
   getSubmissionScoresByCategory,
   getSubmissionByTeamId,
   updateSubmission,
-  getSubmissionByChallengeIdAndTeamId
+  getSubmissionByChallengeIdAndTeamId,
+  deleteSubmission
 };

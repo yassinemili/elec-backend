@@ -1,33 +1,25 @@
-const { Server } = require("socket.io");
+let io;
 
-let io; // Define io globally
-
-module.exports = (server) => {
-  io = new Server(server, {
-    cors: {
-      origin: [
-        "https://elec-frontend.vercel.app",  // Production frontend URL
-      ],
-      methods: ["GET", "POST"],
-      credentials: true,
+module.exports = {
+  init: (server) => {
+    io = require("socket.io")(server, {
+      cors: {
+        origin: [
+          "http://localhost:5173",
+          "https://elec-frontend.vercel.app",
+          "https://socket-p0.vercel.app",
+          "https://socket-p0.onrender.com"
+        ],
+        methods: ["GET", "POST"],
+        credentials: true
+      }
+    });
+    return io;
+  },
+  getIO: () => {
+    if (!io) {
+      throw new Error("Socket.io not initialized");
     }
-  });
-
-  io.on("connection", (socket) => {
-    console.log(`New connection: ${socket.id}`);
-
-    socket.on("sendMessage", (data) => {
-      console.log(`Message: ${data.message}`);
-      io.emit("receiveMessage", data);
-    });
-
-    socket.on("disconnect", () => {
-      console.log(`Disconnected: ${socket.id}`);
-    });
-  });
-
-  return io;
+    return io;
+  }
 };
-
-// Export io separately to use it in routes
-module.exports.getIO = () => io;

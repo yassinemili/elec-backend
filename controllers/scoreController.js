@@ -104,66 +104,21 @@ const updateScore = async (req, res) => {
       return res.status(404).json({ message: "Score not found" });
     }
 
-    const oldScore = existingScore.score;
-    const submissionId = existingScore.submissionId;
-
-    // Update the score
+    // Update score and comments
     existingScore.score = score;
     existingScore.comments = comments || existingScore.comments;
     await existingScore.save();
 
-    // Update the related submission
-    const updatedSubmission = await Submission.findById(submissionId).populate("scores");
-    if (!updatedSubmission) {
-      return res.status(404).json({ message: "Submission not found" });
-    }
-
-    updatedSubmission.status = "reviewed";
-    updatedSubmission.isSolved = true;
-    await updatedSubmission.save();
-
-    // Update the team score
-    const team = await Team.findById(updatedSubmission.teamId);
-    if (!team) {
-      return res.status(404).json({ message: "Team not found" });
-    }
-
-    team.totalScore = team.totalScore - oldScore + score;
-    await team.save();
-
-    // Update the user statistics
-    const challenge = await Challenge.findById(updatedSubmission.challengeId);
-    const category = challenge.category;
-
-    const user = await User.findById(updatedSubmission.userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.statistics.challengeSolved[category] =
-      (user.statistics.challengeSolved[category] || 0) - oldScore + score;
-
-    const { AI, CS, GD, PS } = user.statistics.challengeSolved;
-    user.statistics.score = AI + CS + GD + PS;
-    await user.save();
-
-    // Emit updated team data
-    const io = getIO();
-    io.emit("teams:update", team);
-
-    // Return the updated data
-    res.status(200).json({
-      updatedScore: existingScore,
-      updatedSubmission,
-    });
+    res
+      .status(200)
+      .json({ message: "Score updated successfully", score: existingScore });
   } catch (error) {
     console.error("Error updating score:", error);
-    res.status(400).json({ message: "Error updating score", error: error.message });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-
 module.exports = {
   createScore,
-  updateScore
+  updateScore,
 };

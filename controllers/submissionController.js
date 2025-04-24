@@ -217,7 +217,7 @@ const getSubmissionScoresByCategory = async (req, res) => {
 };
 const getSubmissionByChallengeIdAndTeamId = async (req, res) => {
   try {
-    const { teamId, challengeId } = req.body;
+    const { teamId, challengeId } = req.params;
 
     if (!teamId || !challengeId) {
       return res.status(400).json({ message: "teamId and challengeId are required" });

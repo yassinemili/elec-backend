@@ -59,7 +59,7 @@ router.get(
 );
 
 router.get(
-  "/submission/challenge/team",
+  "/submission/:teamId/:challengeId",
   authenticateUser,
   authorizeRoles("admin"),
   getSubmissionByChallengeIdAndTeamId

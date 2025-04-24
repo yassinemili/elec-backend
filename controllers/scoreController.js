@@ -85,6 +85,85 @@ const createScore = async (req, res) => {
   }
 };
 
+const updateScore = async (req, res) => {
+  try {
+    const { scoreId, score, comments } = req.body;
+
+    // Validate scoreId
+    if (!mongoose.Types.ObjectId.isValid(scoreId)) {
+      return res.status(400).json({ message: "Invalid scoreId format" });
+    }
+
+    if (typeof score !== "number" || isNaN(score)) {
+      return res.status(400).json({ message: "Score must be a valid number" });
+    }
+
+    // Find the existing score
+    const existingScore = await Score.findById(scoreId);
+    if (!existingScore) {
+      return res.status(404).json({ message: "Score not found" });
+    }
+
+    const oldScore = existingScore.score;
+    const submissionId = existingScore.submissionId;
+
+    // Update the score
+    existingScore.score = score;
+    existingScore.comments = comments || existingScore.comments;
+    await existingScore.save();
+
+    // Update the related submission
+    const updatedSubmission = await Submission.findById(submissionId).populate("scores");
+    if (!updatedSubmission) {
+      return res.status(404).json({ message: "Submission not found" });
+    }
+
+    updatedSubmission.status = "reviewed";
+    updatedSubmission.isSolved = true;
+    await updatedSubmission.save();
+
+    // Update the team score
+    const team = await Team.findById(updatedSubmission.teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    team.totalScore = team.totalScore - oldScore + score;
+    await team.save();
+
+    // Update the user statistics
+    const challenge = await Challenge.findById(updatedSubmission.challengeId);
+    const category = challenge.category;
+
+    const user = await User.findById(updatedSubmission.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.statistics.challengeSolved[category] =
+      (user.statistics.challengeSolved[category] || 0) - oldScore + score;
+
+    const { AI, CS, GD, PS } = user.statistics.challengeSolved;
+    user.statistics.score = AI + CS + GD + PS;
+    await user.save();
+
+    // Emit updated team data
+    const io = getIO();
+    io.emit("teams:update", team);
+
+    // Return the updated data
+    res.status(200).json({
+      updatedScore: existingScore,
+      updatedSubmission,
+    });
+  } catch (error) {
+    console.error("Error updating score:", error);
+    res.status(400).json({ message: "Error updating score", error: error.message });
+  }
+};
+
+
 module.exports = {
   createScore,
+  updateScore
 };

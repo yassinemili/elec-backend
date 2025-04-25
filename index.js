@@ -21,7 +21,6 @@ const authRoutes = require("./routes/authRoutes");
 const mentorRoutes = require("./routes/mentorRouter");
 const videoRoutes = require("./routes/videosRoutes");
 
-
 /* const { init: initSocket } = require("./config/socket"); */
 
 const { setupSocket } = require("./config/socket");
@@ -31,10 +30,14 @@ const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://elec-frontend.vercel.app", "https://socket-p0.onrender.com/"],
+    origin: [
+      "http://localhost:5173",
+      "https://elec-frontend.vercel.app",
+      "https://socket-p0.onrender.com/",
+    ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(express.json());
@@ -48,7 +51,6 @@ app.use(errorHandler);
 setupSocket(server);
 /* initSocket(server); */
 
-
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/teams", teamRoutes);
@@ -61,8 +63,6 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/mentors", mentorRoutes);
 app.use("/api/videos", videoRoutes);
-
-
 
 const PORT = process.env.PORT || 6010;
 connectDB();

@@ -21,9 +21,18 @@ const getSubmissionByTeamId = async (req, res) => {
     const { teamId } = req.params;
 
     const submissions = await Submission.find({ teamId })
-      .populate("challengeId", "wave")
-      .populate("teamId", "name")
-      .populate("userId", "name")
+      .populate({
+        path: "challengeId",
+        select: "wave points"
+      })
+      .populate({
+        path: "teamId",
+        select: "name"
+      })
+      .populate({
+        path: "userId",
+        select: "name"
+      })
       .populate("scores");
 
     if (!submissions || submissions.length === 0) {

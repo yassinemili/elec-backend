@@ -215,6 +215,32 @@ const getSubmissionScoresByCategory = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+// const getSubmissionByChallengeIdAndTeamId = async (req, res) => {
+//   try {
+//     const { teamId, challengeId } = req.params;
+
+//     if (!teamId || !challengeId) {
+//       return res
+//         .status(400)
+//         .json({ message: "teamId and challengeId are required" });
+//     }
+
+//     const result = await Submission.findOne({ teamId, challengeId }).populate(
+//       "scores"
+//     );
+
+//     if (!result) {
+//       return res.status(404).json({ message: "Submission not found" });
+//     }
+
+//     return res.status(200).json(result);
+//   } catch (error) {
+//     console.error("Error fetching submission:", error);
+//     return res
+//       .status(500)
+//       .json({ message: "Internal server error", error: error.message });
+//   }
+// };
 const getSubmissionByChallengeIdAndTeamId = async (req, res) => {
   try {
     const { teamId, challengeId } = req.params;
@@ -241,7 +267,6 @@ const getSubmissionByChallengeIdAndTeamId = async (req, res) => {
       .json({ message: "Internal server error", error: error.message });
   }
 };
-
 const deleteSubmission = async (req, res) => {
   try {
     const { submissionId } = req.params;

@@ -16,20 +16,26 @@ const createChallenge = async (req, res) => {
     if (!req.body.title || !req.body.description || !req.body.points || !req.body.category || !req.body.wave) {
       return res.status(400).json({ message: "Some information are required" });
     }
+    let downloadUrl = null;
 
-    if (!req.file) {
-      return res.status(400).json({ message: "File is required" });
+    if (req.file?.path) {
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: "attachments",
+          resource_type: "auto",
+          use_filename: true,
+          unique_filename: false,
+        });
+
+        // Force download by modifying URL with `fl_attachment`
+        const urlParts = result.secure_url.split("/upload/");
+        downloadUrl = `${urlParts[0]}/upload/fl_attachment/${urlParts[1]}`;
+      } catch (error) {
+        console.error("Cloudinary upload failed:", error);
+        return res.status(500).json({ error: "File upload failed." });
+      }
     }
 
-    // Upload file to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "attachments",
-      resource_type: "auto",
-      use_filename: true,
-      unique_filename: false,
-    });
-
-    const downloadUrl = result.secure_url.replace("/upload/", "/upload/fl_attachment/");
 
     const { title, description, points, hints, category, wave } = req.body;
     const challenge = new Challenge({

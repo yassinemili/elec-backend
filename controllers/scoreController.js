@@ -85,6 +85,78 @@ const createScore = async (req, res) => {
   }
 };
 
+const updateScore = async (req, res) => {
+  try {
+    const { scoreId, score, comments } = req.body;
+
+    // Validate scoreId and score value
+    if (!mongoose.Types.ObjectId.isValid(scoreId)) {
+      return res.status(400).json({ message: "Invalid scoreId format" });
+    }
+    if (typeof score !== "number" || isNaN(score)) {
+      return res.status(400).json({ message: "Score must be a valid number" });
+    }
+
+    // Find the existing score
+    const existingScore = await Score.findById(scoreId);
+    if (!existingScore) {
+      return res.status(404).json({ message: "Score not found" });
+    }
+
+    const oldScore = existingScore.score;
+    existingScore.score = score;
+    existingScore.comments = comments || existingScore.comments;
+    await existingScore.save();
+
+    // Get related submission
+    const submission = await Submission.findById(existingScore.submissionId);
+    if (!submission) {
+      return res.status(404).json({ message: "Submission not found" });
+    }
+
+    // Update submission status if not already done
+    submission.status = "reviewed";
+    submission.isSolved = true;
+    await submission.save();
+
+    // Update team score
+    const team = await Team.findById(submission.teamId);
+    if (!team) return res.status(404).json({ message: "Team not found" });
+
+    team.totalScore += score - oldScore;
+    await team.save();
+
+    // Update user stats
+    const challenge = await Challenge.findById(submission.challengeId);
+    const category = challenge.category;
+
+    const user = await User.findById(submission.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.statistics.challengeSolved[category] += score - oldScore;
+
+    const { AI, CS, GD, PS } = user.statistics.challengeSolved;
+    user.statistics.score = AI + CS + GD + PS;
+
+    await user.save();
+
+    // Emit updated team
+    const io = getIO();
+    io.emit("teams:update", team);
+
+    res.status(200).json({
+      message: "Score updated successfully",
+      score: existingScore,
+    });
+  } catch (error) {
+    console.error("Error updating score:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
 module.exports = {
   createScore,
+  updateScore,
 };

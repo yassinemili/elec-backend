@@ -1,4 +1,5 @@
 const Submission = require("../models/submissionModel");
+const Score = require("../models/scoreModel");
 const Team = require("../models/teamModel");
 const cloudinary = require("../config/cloudinary");
 
@@ -20,9 +21,18 @@ const getSubmissionByTeamId = async (req, res) => {
     const { teamId } = req.params;
 
     const submissions = await Submission.find({ teamId })
-      .populate("challengeId", "title")
-      .populate("teamId", "name")
-      .populate("userId", "name")
+      .populate({
+        path: "challengeId",
+        select: "wave points"
+      })
+      .populate({
+        path: "teamId",
+        select: "name"
+      })
+      .populate({
+        path: "userId",
+        select: "name"
+      })
       .populate("scores");
 
     if (!submissions || submissions.length === 0) {
@@ -45,7 +55,6 @@ const createSubmission = async (req, res) => {
     const existingSubmission = await Submission.findOne({
       teamId,
       challengeId,
-      userId,
     });
 
     if (existingSubmission) {
@@ -79,7 +88,16 @@ const createSubmission = async (req, res) => {
       submissionText: submissionText || "",
       isSolved: false,
     });
-
+    let newScore;
+    const existingScore = await Score.findOne({ submissionId: submission._id });
+    if (!existingScore) {
+      newScore = new Score({
+        submissionId: submission._id,
+        score: 0,
+      });
+      await newScore.save();
+    }
+    submission.scores = [newScore._id];
     await submission.save();
 
     res.status(201).json({
@@ -89,6 +107,50 @@ const createSubmission = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       message: "Error creating submission",
+      error: error.message,
+    });
+  }
+};
+
+const updateSubmission = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+    const { submissionText } = req.body;
+
+    const submission = await Submission.findById(submissionId);
+    if (!submission) {
+      return res.status(404).json({ message: "Submission not found" });
+    }
+
+    // Optional file update
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "submissions",
+        resource_type: "auto",
+        use_filename: true,
+        unique_filename: false,
+        flags: "attachment",
+      });
+
+      submission.submissionFile = result.secure_url.replace(
+        "/upload/",
+        "/upload/fl_attachment/"
+      );
+    }
+
+    if (typeof submissionText === "string") {
+      submission.submissionText = submissionText;
+    }
+
+    await submission.save();
+
+    res.status(200).json({
+      message: "Submission updated successfully",
+      submission,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Error updating submission",
       error: error.message,
     });
   }
@@ -162,6 +224,119 @@ const getSubmissionScoresByCategory = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+// const getSubmissionByChallengeIdAndTeamId = async (req, res) => {
+//   try {
+//     const { teamId, challengeId } = req.params;
+
+//     if (!teamId || !challengeId) {
+//       return res
+//         .status(400)
+//         .json({ message: "teamId and challengeId are required" });
+//     }
+
+//     const result = await Submission.findOne({ teamId, challengeId }).populate(
+//       "scores"
+//     );
+
+//     if (!result) {
+//       return res.status(404).json({ message: "Submission not found" });
+//     }
+
+//     return res.status(200).json(result);
+//   } catch (error) {
+//     console.error("Error fetching submission:", error);
+//     return res
+//       .status(500)
+//       .json({ message: "Internal server error", error: error.message });
+//   }
+// };
+const getSubmissionByChallengeIdAndTeamId = async (req, res) => {
+  try {
+    const { teamId, challengeId } = req.params;
+
+    if (!teamId || !challengeId) {
+      return res
+        .status(400)
+        .json({ message: "teamId and challengeId are required" });
+    }
+
+    const result = await Submission.findOne({ teamId, challengeId }).populate(
+      "scores"
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Submission not found" });
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching submission:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+const deleteSubmission = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+
+    // Validate ID
+    if (!mongoose.Types.ObjectId.isValid(submissionId)) {
+      return res.status(400).json({ message: "Invalid submissionId format" });
+    }
+
+    const submission = await Submission.findById(submissionId);
+    if (!submission) {
+      return res.status(404).json({ message: "Submission not found" });
+    }
+
+    // Remove associated scores and calculate score impact
+    const scores = await Score.find({ _id: { $in: submission.scores } });
+
+    let totalScoreRemoved = 0;
+    for (const s of scores) {
+      totalScoreRemoved += s.score;
+      await s.deleteOne();
+    }
+
+    // Update team totalScore
+    const team = await Team.findById(submission.teamId);
+    if (team) {
+      team.totalScore -= totalScoreRemoved;
+      await team.save();
+    }
+
+    // Update user statistics
+    const challenge = await Challenge.findById(submission.challengeId);
+    const category = challenge.category;
+
+    const user = await User.findById(submission.userId);
+    if (user) {
+      user.statistics.challengeSolved[category] =
+        (user.statistics.challengeSolved[category] || 0) - totalScoreRemoved;
+
+      const { AI, CS, GD, PS } = user.statistics.challengeSolved;
+      user.statistics.score = AI + CS + GD + PS;
+      await user.save();
+    }
+
+    // Delete the submission
+    await submission.deleteOne();
+
+    // Notify clients
+    const io = getIO();
+    if (team) io.emit("teams:update", team);
+
+    res
+      .status(200)
+      .json({ message: "Submission and associated scores deleted" });
+  } catch (error) {
+    console.error("Error deleting submission:", error);
+    res
+      .status(500)
+      .json({ message: "Error deleting submission", error: error.message });
+  }
+};
 
 module.exports = {
   getAllSubmissions,
@@ -170,4 +345,7 @@ module.exports = {
   getSubmissionScoresByTeam,
   getSubmissionScoresByCategory,
   getSubmissionByTeamId,
+  updateSubmission,
+  getSubmissionByChallengeIdAndTeamId,
+  deleteSubmission,
 };
